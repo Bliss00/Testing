@@ -26,10 +26,16 @@ jobs:
 
     - name: Update Package.swift URLs
       run: |
-        CORE_SDK_URL=${{ github.event.inputs.coreSDKURL }}
-        UI_SDK_URL=${{ github.event.inputs.uiSDKURL }}
-        sed -i "0,/url: \".*\",/{s|url: \".*\",|url: \"$CORE_SDK_URL\",|}" Package.swift
-        sed -i "1,/url: \".*\",/{s|url: \".*\",|url: \"$UI_SDK_URL\",|}" Package.swift
+        CORE_SDK_URL="${{ github.event.inputs.coreSDKURL }}"
+        UI_SDK_URL="${{ github.event.inputs.uiSDKURL }}"
+
+        if [ -n "$CORE_SDK_URL" ]; then
+          sed -i "/.binaryTarget(name: \"TestingCoreSDK\",/{n;s|url: \".*\",|url: \"$CORE_SDK_URL\",|}" Package.swift
+        fi
+
+        if [ -n "$UI_SDK_URL" ]; then
+          sed -i "/.binaryTarget(name: \"TestingUISDK\",/{n;s|url: \".*\",|url: \"$UI_SDK_URL\",|}" Package.swift
+        fi
 
     - name: Create and push release branch
       run: |
@@ -42,7 +48,6 @@ jobs:
         git push origin release-$VERSION
 
     - name: Create pull request
-      id: create_pr
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
