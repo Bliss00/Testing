@@ -17,7 +17,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Update URL and checksum in Package.swift
+      - name: Set up Git
+        run: |
+          git config user.email "actions@example.com"
+          git config user.name "GitHub Actions"
+
+      - name: Update URL in Package.swift
         run: |
           sed -i "s|old-url-here|${{ github.event.inputs.url }}|g" Package.swift
           git add Package.swift
