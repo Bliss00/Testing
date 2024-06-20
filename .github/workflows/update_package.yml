@@ -24,7 +24,7 @@ jobs:
 
       - name: Update URL in Package.swift
         run: |
-          sed -i "s|old-url-here|${{ github.event.inputs.url }}|g" Package.swift
+          sed -i "s#url: .*#url: \"$INPUT_URL\"#" Package.swift
           git add Package.swift
           git commit -m "Update binary target URL"
 
