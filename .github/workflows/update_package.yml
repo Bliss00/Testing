@@ -1,10 +1,10 @@
-name: Update URL and Create Pull Request
+name: Update Binary Target URL and Create Pull Request
 
 on:
   workflow_dispatch:
     inputs:
       url:
-        description: 'New URL to update in package.swift'
+        description: 'New URL to the Swift binary framework ZIP file'
         required: true
       version:
         description: 'Version number for release branch (e.g., v1.0.0)'
@@ -17,16 +17,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Git
-        run: |
-          git config user.email "actions@example.com"
-          git config user.name "GitHub Actions"
+      - name: Set up Swift
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '5.5'  # Replace with your Swift version if necessary
 
-      - name: Update URL in package.swift
+      - name: Download and compute checksum for binary framework
         run: |
-          sed -i "s#url: .*#url: \"$INPUT_URL\"#" Package.swift
+          mkdir framework
+          cd framework
+          curl -LO ${{ github.event.inputs.url }}
+          framework_zip=$(basename ${{ github.event.inputs.url }})
+          unzip $framework_zip
+          # Calculate SHA256 checksum
+          checksum=$(shasum -a 256 $framework_zip | cut -d ' ' -f 1)
+          cd ..
+
+      - name: Update URL and checksum in Package.swift
+        run: |
+          sed -i "s|old-url-here|${{ github.event.inputs.url }}|g" Package.swift
+          sed -i "s|old-checksum-here|${checksum}|g" Package.swift
           git add Package.swift
-          git commit -m "Update URL in Package.swift"
+          git commit -m "Update binary target URL and checksum"
 
       - name: Create Release Branch
         run: |
@@ -41,11 +53,11 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Update URL and create release branch"
-          title: "Update URL and create release branch for version ${{ github.event.inputs.version }}"
+          commit-message: "Update binary target URL and create release branch"
+          title: "Update binary target URL and create release branch for version ${{ github.event.inputs.version }}"
           body: |
             Changes made:
-            - Updated URL in package.swift
+            - Updated binary target URL and checksum in Package.swift
 
             Release branch created for version ${{ github.event.inputs.version }}.
 
