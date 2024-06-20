@@ -29,13 +29,8 @@ jobs:
         CORE_SDK_URL="${{ github.event.inputs.coreSDKURL }}"
         UI_SDK_URL="${{ github.event.inputs.uiSDKURL }}"
 
-        if [ -n "$CORE_SDK_URL" ]; then
-          sed -i "/.binaryTarget(name: \"TestingCoreSDK\",/{n;s|url: \".*\",|url: \"$CORE_SDK_URL\",|}" Package.swift
-        fi
-
-        if [ -n "$UI_SDK_URL" ]; then
-          sed -i "/.binaryTarget(name: \"TestingUISDK\",/{n;s|url: \".*\",|url: \"$UI_SDK_URL\",|}" Package.swift
-        fi
+        sed -i "/.binaryTarget(name: \"TestingCoreSDK\",/{n;s|url: \".*\",|url: \"$CORE_SDK_URL\",|}" Package.swift
+        sed -i "/.binaryTarget(name: \"TestingUISDK\",/{n;s|url: \".*\",|url: \"$UI_SDK_URL\",|}" Package.swift
 
     - name: Create and push release branch
       run: |
