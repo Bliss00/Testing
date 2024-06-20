@@ -17,28 +17,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Swift
-        uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: '5.5'  # Replace with your Swift version if necessary
-
-      - name: Download and compute checksum for binary framework
-        run: |
-          mkdir framework
-          cd framework
-          curl -LO ${{ github.event.inputs.url }}
-          framework_zip=$(basename ${{ github.event.inputs.url }})
-          unzip $framework_zip
-          # Calculate SHA256 checksum
-          checksum=$(shasum -a 256 $framework_zip | cut -d ' ' -f 1)
-          cd ..
-
       - name: Update URL and checksum in Package.swift
         run: |
           sed -i "s|old-url-here|${{ github.event.inputs.url }}|g" Package.swift
-          sed -i "s|old-checksum-here|${checksum}|g" Package.swift
           git add Package.swift
-          git commit -m "Update binary target URL and checksum"
+          git commit -m "Update binary target URL"
 
       - name: Create Release Branch
         run: |
