@@ -1,0 +1,44 @@
+name: Update Package.swift with new URL and checksum
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL of the zip file'
+        required: true
+
+jobs:
+  update_package:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Update Package.swift
+        run: |
+          sed -i "s#url: .*#url: \"$INPUT_URL\"#" Package.swift
+        env:
+          INPUT_URL: ${{ github.event.inputs.url }}
+      
+      - name: Commit changes
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add Package.swift
+          git commit -m "Update URL in Package.swift"
+      
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Update URL in Package.swift'
+          title: 'Update URL in Package.swift'
+          body: |
+            This pull request updates the URL and checksum in the Package.swift file.
+          branch: update-package-swift-${{ github.run_id }}
