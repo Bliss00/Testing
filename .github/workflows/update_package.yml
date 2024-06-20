@@ -1,44 +1,53 @@
-name: Update Package.swift with new URL and checksum
+name: Update URL and Create Pull Request
 
 on:
   workflow_dispatch:
     inputs:
       url:
-        description: 'URL of the zip file'
+        description: 'New URL to update in package.swift'
+        required: true
+      version:
+        description: 'Version number for release branch (e.g., v1.0.0)'
         required: true
 
 jobs:
-  update_package:
+  update_and_create_pr:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      
-      - name: Update Package.swift
+
+      - name: Set up Git
         run: |
-          sed -i "s#url: .*#url: \"$INPUT_URL\"#" Package.swift
-        env:
-          INPUT_URL: ${{ github.event.inputs.url }}
-      
-      - name: Commit changes
+          git config user.email "actions@example.com"
+          git config user.name "GitHub Actions"
+
+      - name: Update URL in package.swift
         run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git add Package.swift
-          git commit -m "Update URL in Package.swift"
-      
-      - name: Push changes
+          sed -i "s|old-url-here|${{ github.event.inputs.url }}|g" package.swift
+          git add package.swift
+          git commit -m "Update URL in package.swift"
+
+      - name: Create Release Branch
+        run: |
+          git checkout -b release-${{ github.event.inputs.version }}
+
+      - name: Push changes to release branch
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      
+          branch: release-${{ github.event.inputs.version }}
+
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'Update URL in Package.swift'
-          title: 'Update URL in Package.swift'
+          commit-message: "Update URL and create release branch"
+          title: "Update URL and create release branch for version ${{ github.event.inputs.version }}"
           body: |
-            This pull request updates the URL and checksum in the Package.swift file.
-          branch: update-package-swift-${{ github.run_id }}
+            Changes made:
+            - Updated URL in package.swift
+
+            Release branch created for version ${{ github.event.inputs.version }}.
+
+          branch: release-${{ github.event.inputs.version }}
+          base: main
