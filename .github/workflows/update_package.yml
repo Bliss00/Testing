@@ -1,4 +1,4 @@
-name: Update BinaryTarget URLs and Create Release Branch
+name: Update BinaryTarget URLs in Package.swift
 
 on:
   workflow_dispatch:
@@ -6,15 +6,12 @@ on:
       coreSDKURL:
         description: 'New URL for TestingCoreSDK'
         required: true
-        default: ''
       uiSDKURL:
         description: 'New URL for TestingUISDK'
         required: true
-        default: ''
-      version:
-        description: 'Release version'
+      branchName:
+        description: 'Branch name for the changes'
         required: true
-        default: ''
 
 jobs:
   update-urls:
@@ -32,22 +29,12 @@ jobs:
         sed -i "/.binaryTarget(name: \"TestingCoreSDK\",/{n;s|url: \".*\",|url: \"$CORE_SDK_URL\",|}" Package.swift
         sed -i "/.binaryTarget(name: \"TestingUISDK\",/{n;s|url: \".*\",|url: \"$UI_SDK_URL\",|}" Package.swift
 
-    - name: Create and push release branch
+    - name: Create and push new branch
       run: |
-        VERSION=${{ github.event.inputs.version }}
+        BRANCH_NAME=${{ github.event.inputs.branchName }}
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
-        git checkout -b release-$VERSION
+        git checkout -b $BRANCH_NAME
         git add Package.swift
-        git commit -m "Update binary target URLs for release $VERSION"
-        git push origin release-$VERSION
-
-    - name: Create pull request
-      uses: peter-evans/create-pull-request@v3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        base: main
-        head: release-${{ github.event.inputs.version }}
-        title: 'Release ${{ github.event.inputs.version }}'
-        body: 'This pull request updates the binary target URLs for the release ${{ github.event.inputs.version }}.'
-        draft: false
+        git commit -m "Update binary target URLs"
+        git push origin $BRANCH_NAME
