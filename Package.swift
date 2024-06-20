@@ -21,12 +21,12 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "TestingCoreSDK",
-            url: "https://github.com/testing/core",
+            url: "apple.com"
             checksum: "f329505fdbf1561d6080fe45560319405787c064e0cf9a487477f247dac7772w"
         ),
         .binaryTarget(
             name: "TestingUISDK",
-            url: "https://github.com.testing/ui",
+            url: "apple.com"
             checksum: "f329505fdbf1561d6080fe45560319405787c064e0cf9a487477f247dac7771q"
         )
     ]
