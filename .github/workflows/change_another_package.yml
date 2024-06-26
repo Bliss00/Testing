@@ -27,7 +27,7 @@ jobs:
     - name: Checkout source repository
       uses: actions/checkout@v2
       with:
-        token: ${{ secrets.GH_TOKEN }}
+        token: ${{ secrets.TOKEN }}
 
     - name: Get version input
       id: get-version
@@ -41,9 +41,9 @@ jobs:
     - name: Checkout target repository
       uses: actions/checkout@v2
       with:
-        repository: Blis00/Packages # Replace with the target repository owner and name
+        repository: Blis00/Packages
         ref: main
-        token: ${{ secrets.GH_TOKEN }}
+        token: ${{ secrets.TOKEN }}
         path: Packages
 
     - name: Create version directory in target repository
