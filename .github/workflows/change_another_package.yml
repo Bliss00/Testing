@@ -52,7 +52,7 @@ jobs:
 
     - name: Copy SDKPackage.swift to version directory
       run: |
-        cp SDKPackage.swift Packages/${{ env.VERSION }}/
+        cp Packages/SDKPackage.swift Packages/${{ env.VERSION }}/
 
     - name: Replace core_url in SDKPackage.swift
       run: |
