@@ -32,11 +32,11 @@ jobs:
     - name: Get version input
       id: get-version
       run: |
-      echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-      echo "CORE_URL=${{ github.event.inputs.core_url }}" >> $GITHUB_ENV
-      echo "CORE_CHECKSUM=${{ github.event.inputs.core_checksum }}" >> $GITHUB_ENV
-      echo "UI_URL=${{ github.event.inputs.ui_url }}" >> $GITHUB_ENV
-      echo "UI_CHECKSUM=${{ github.event.inputs.ui_checksum }}" >> $GITHUB_ENV
+        echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+        echo "CORE_URL=${{ github.event.inputs.core_url }}" >> $GITHUB_ENV
+        echo "CORE_CHECKSUM=${{ github.event.inputs.core_checksum }}" >> $GITHUB_ENV
+        echo "UI_URL=${{ github.event.inputs.ui_url }}" >> $GITHUB_ENV
+        echo "UI_CHECKSUM=${{ github.event.inputs.ui_checksum }}" >> $GITHUB_ENV
 
     - name: Checkout target repository
       uses: actions/checkout@v2
