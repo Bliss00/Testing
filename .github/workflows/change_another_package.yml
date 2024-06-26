@@ -1,4 +1,4 @@
-name: Update BinaryTarget URLs in Package.swift
+name: Update Packages repo
 
 on:
   workflow_dispatch:
