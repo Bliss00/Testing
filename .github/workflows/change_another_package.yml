@@ -25,7 +25,7 @@ jobs:
 
     steps:
     - name: Checkout source repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         token: ${{ secrets.TOKEN }}
 
@@ -39,9 +39,9 @@ jobs:
         echo "UI_CHECKSUM=${{ github.event.inputs.ui_checksum }}" >> $GITHUB_ENV
 
     - name: Checkout target repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
-        repository: Blis00/Packages
+        repository: Bliss00/Packages
         ref: main
         token: ${{ secrets.TOKEN }}
         path: Packages
