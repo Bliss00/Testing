@@ -1,0 +1,71 @@
+name: Update BinaryTarget URLs in Package.swift
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of build'
+        required: true
+      core_url:
+        description: 'New URL for Core SDK'
+        required: true
+      core_checksum:
+        decription: "New checksum for Core SDK"
+        require: true
+      ui_url:
+        description: 'New URL for TestingUISDK'
+        required: true
+      ui_checksum:
+        decription: "New checksum for UI SDK"
+        require: true
+
+jobs:
+  copy-sdkpackage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source repository
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GH_TOKEN }}
+
+    - name: Get version input
+      id: get-version
+      run: |
+      echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+      echo "CORE_URL=${{ github.event.inputs.core_url }}" >> $GITHUB_ENV
+      echo "CORE_CHECKSUM=${{ github.event.inputs.core_checksum }}" >> $GITHUB_ENV
+      echo "UI_URL=${{ github.event.inputs.ui_url }}" >> $GITHUB_ENV
+      echo "UI_CHECKSUM=${{ github.event.inputs.ui_checksum }}" >> $GITHUB_ENV
+
+    - name: Checkout target repository
+      uses: actions/checkout@v2
+      with:
+        repository: Blis00/Packages # Replace with the target repository owner and name
+        ref: main
+        token: ${{ secrets.GH_TOKEN }}
+        path: Packages
+
+    - name: Create version directory in target repository
+      run: |
+        mkdir -p Packages/${{ env.VERSION }}
+
+    - name: Copy SDKPackage.swift to version directory
+      run: |
+        cp SDKPackage.swift Packages/${{ env.VERSION }}/
+
+    - name: Replace core_url in SDKPackage.swift
+      run: |
+        sed -i "s|core_url|${{ env.CORE_URL }}|g" Packages/${{ env.VERSION }}/SDKPackage.swift
+        sed -i "s|core_checksum|${{ env.CORE_CHECKSUM }}|g" Packages/${{ env.VERSION }}/SDKPackage.swift
+        sed -i "s|ui_url|${{ env.UI_URL }}|g" Packages/${{ env.VERSION }}/SDKPackage.swift
+        sed -i "s|ui_checksum|${{ env.UI_CHECKSUM }}|g" Packages/${{ env.VERSION }}/SDKPackage.swift
+
+    - name: Commit and push changes
+      run: |
+        cd target-repo
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add .
+        git commit -m "Creates Package for ${{ env.VERSION }} build"
+        git push origin main
