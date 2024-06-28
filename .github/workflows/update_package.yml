@@ -23,7 +23,7 @@ jobs:
       - name: Read SDKPackage.swift content
         id: read-file
         run: |
-          content=$(cat Packages/%{{ inputs.version }}/SDKPackage.swift)
+          content=$(cat Packages/${{ inputs.version }}/SDKPackage.swift)
           echo "::set-output name=content::$content"
 
       - name: Checkout second repository
