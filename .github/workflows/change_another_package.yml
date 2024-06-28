@@ -48,18 +48,18 @@ jobs:
 
     - name: Create version directory in target repository
       run: |
-        mkdir -p Packages/${{ env.VERSION }}
+        mkdir -p Packages/Packages/${{ env.VERSION }}
 
     - name: Copy SDKPackage.swift to version directory
       run: |
-        cp Packages/SDKPackage.swift Packages/${{ env.VERSION }}/
+        cp Packages/SDKPackage.swift Packages/Packages/${{ env.VERSION }}/
 
     - name: Replace core_url in SDKPackage.swift
       run: |
-        sed -i "s|core_url|${{ env.CORE_URL }}|g" Packages/${{ env.VERSION }}/SDKPackage.swift
-        sed -i "s|core_checksum|${{ env.CORE_CHECKSUM }}|g" Packages/${{ env.VERSION }}/SDKPackage.swift
-        sed -i "s|ui_url|${{ env.UI_URL }}|g" Packages/${{ env.VERSION }}/SDKPackage.swift
-        sed -i "s|ui_checksum|${{ env.UI_CHECKSUM }}|g" Packages/${{ env.VERSION }}/SDKPackage.swift
+        sed -i "s|core_url|${{ env.CORE_URL }}|g" Packages/Packages/${{ env.VERSION }}/SDKPackage.swift
+        sed -i "s|core_checksum|${{ env.CORE_CHECKSUM }}|g" Packages/Packages/${{ env.VERSION }}/SDKPackage.swift
+        sed -i "s|ui_url|${{ env.UI_URL }}|g" Packages/Packages/${{ env.VERSION }}/SDKPackage.swift
+        sed -i "s|ui_checksum|${{ env.UI_CHECKSUM }}|g" Packages/Packages/${{ env.VERSION }}/SDKPackage.swift
 
     - name: Commit and push changes
       run: |
