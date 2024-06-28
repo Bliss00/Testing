@@ -1,40 +1,61 @@
-name: Update BinaryTarget URLs in Package.swift
+name: Update public Package
 
 on:
   workflow_dispatch:
     inputs:
-      coreSDKURL:
-        description: 'New URL for TestingCoreSDK'
-        required: true
-      uiSDKURL:
-        description: 'New URL for TestingUISDK'
-        required: true
-      branchName:
-        description: 'Branch name for the changes'
+      version:
+        description: 'version of SDK'
         required: true
 
 jobs:
-  update-urls:
+  update-package:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout first repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'Bliss00/Packages'
+          ref: main
+          path: Packages
+          token: ${{ secrets.TOKEN }}
 
-    - name: Update Package.swift URLs
-      run: |
-        CORE_SDK_URL="${{ github.event.inputs.coreSDKURL }}"
-        UI_SDK_URL="${{ github.event.inputs.uiSDKURL }}"
+      - name: Read SDKPackage.swift content
+        id: read-file
+        run: |
+          content=$(cat Packages/%{{ inputs.version }}/SDKPackage.swift)
+          echo "::set-output name=content::$content"
 
-        sed -i "/.binaryTarget(name: \"TestingCoreSDK\",/{n;s|url: \".*\",|url: \"$CORE_SDK_URL\",|}" Package.swift
-        sed -i "/.binaryTarget(name: \"TestingUISDK\",/{n;s|url: \".*\",|url: \"$UI_SDK_URL\",|}" Package.swift
+      - name: Checkout second repository
+        uses: actions/checkout@v2
+        with:
+          repository: 'Bliss00/Testing'
+          ref: main
+          path: Testing
+          token: ${{ secrets.TOKEN }}
 
-    - name: Create and push new branch
-      run: |
-        BRANCH_NAME=${{ github.event.inputs.branchName }}
-        git config --global user.name 'github-actions'
-        git config --global user.email 'github-actions@github.com'
-        git checkout -b $BRANCH_NAME
-        git add Package.swift
-        git commit -m "Update binary target URLs"
-        git push origin $BRANCH_NAME
+      - name: Create new branch
+        run: |
+          cd Testing
+          git checkout -b release-${{ inputs.new-branch }}
+
+      - name: Update Package.swift
+        run: |
+          echo "${{ steps.read-file.outputs.content }}" > Testing/Package.swift
+          cd Testing
+          git add Package.swift
+          git commit -m "[UPDATE] SDK Package (${{ inputs.commit-message }})"
+
+      - name: Push changes
+        run: |
+          cd Testing
+          git push origin release-${{ inputs.new-branch }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.TOKEN }}
+          commit-message: "Commit comment"
+          branch: "release-${{ inputs.new-branch }}"
+          title: "PR title"
+          body: "PR Body"
