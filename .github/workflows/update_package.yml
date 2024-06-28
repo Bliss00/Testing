@@ -37,7 +37,7 @@ jobs:
       - name: Create new branch
         run: |
           cd Testing
-          git checkout -b release-${{ inputs.new-branch }}
+          git checkout -b release-${{ inputs.version }}
 
       - name: Update Package.swift
         run: |
@@ -46,18 +46,19 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add Package.swift
-          git commit -m "[UPDATE] SDK Package (${{ inputs.commit-message }})"
+          git commit -m "[UPDATE] SDK Package (${{ inputs.version }})"
 
       - name: Push changes
         run: |
           cd Testing
-          git push origin release-${{ inputs.new-branch }}
+          git push origin release-${{ inputs.version }}
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
         with:
+          commit-message: 'Release-${{ inputs.version }}'
+          title: 'Release-${{ inputs.version }}'
+          # branch-suffix: v-${{ github.event.inputs.version }}-meta-${{ github.event.inputs.meta-version}} # TODO: fix
+          delete-branch: true
           token: ${{ secrets.TOKEN }}
-          commit-message: "Commit comment"
-          branch: "release-${{ inputs.new-branch }}"
-          title: "PR title"
-          body: "PR Body"
