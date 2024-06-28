@@ -54,11 +54,11 @@ jobs:
           git push origin release-${{ inputs.version }}
 
       - name: Create Pull Request
-        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: 'Release-${{ inputs.version }}'
-          title: 'Release-${{ inputs.version }}'
-          # branch-suffix: v-${{ github.event.inputs.version }}-meta-${{ github.event.inputs.meta-version}} # TODO: fix
-          delete-branch: true
           token: ${{ secrets.TOKEN }}
+          commit-message: "COMMIT MESSAGE"
+          branch: release-${{ inputs.version }}
+          title: "TITLE"
+          body: "BODY"
+          base: main
